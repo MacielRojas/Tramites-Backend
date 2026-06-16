@@ -9,7 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -35,7 +34,7 @@ public class DocumentoController {
             String username = authentication.getName();
             Documento doc = documentoService.subirDocumento(file, username, politicaId, tramiteId, actividadId);
             return ResponseEntity.ok(doc);
-        } catch (IOException e) {
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error al subir el archivo: " + e.getMessage());
         }
     }

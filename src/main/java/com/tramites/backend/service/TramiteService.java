@@ -154,6 +154,14 @@ public class TramiteService {
         return tramite;
     }
 
+    public Optional<Tramite> actualizarDatos(String id, Map<String, Object> datos) {
+        return tramiteRepository.findById(id).map(t -> {
+            t.setDatos(datos);
+            t.setFechaActualizacion(LocalDateTime.now());
+            return tramiteRepository.save(t);
+        });
+    }
+
     public void eliminar(String id) {
         Tramite tramite = tramiteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Trámite no encontrado: " + id));

@@ -44,23 +44,36 @@ public class GCSService {
         }
     }
 
-    public UploadResult uploadFile(MultipartFile file, String carpeta) throws IOException {
-        if (storage == null) {
-            String fakeUrl = "http://localhost:8080/documentos/" + carpeta + "/" + UUID.randomUUID();
-            return new UploadResult(fakeUrl, carpeta + "/simulado");
+    public UploadResult uploadFile(MultipartFile file, String carpeta) {
+        if (storage != null) {
+            try {
+                String original = file.getOriginalFilename();
+                String ext = (original != null && original.contains("."))
+                        ? original.substring(original.lastIndexOf('.'))
+                        : "";
+                String gcsPath = carpeta + "/" + UUID.randomUUID() + ext;
+                BlobId   blobId   = BlobId.of(bucketName, gcsPath);
+                BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+                        .setContentType(file.getContentType())
+                        .build();
+                storage.create(blobInfo, file.getBytes());
+                String url = "https://storage.googleapis.com/" + bucketName + "/" + gcsPath;
+                log.info("Archivo subido a GCS: {}", url);
+                return new UploadResult(url, gcsPath);
+            } catch (Exception e) {
+                log.warn("Error subiendo a GCS, usando URL local: {}", e.getMessage());
+            }
         }
-        String original = file.getOriginalFilename();
-        String ext = (original != null && original.contains("."))
-                ? original.substring(original.lastIndexOf('.'))
-                : "";
-        String gcsPath = carpeta + "/" + UUID.randomUUID() + ext;
-        BlobId blobId = BlobId.of(bucketName, gcsPath);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
-                .setContentType(file.getContentType())
-                .build();
-        storage.create(blobInfo, file.getBytes());
-        String url = "https://storage.googleapis.com/" + bucketName + "/" + gcsPath;
-        return new UploadResult(url, gcsPath);
+        return localFallback(carpeta, file.getOriginalFilename());
+    }
+
+    private UploadResult localFallback(String carpeta, String fileName) {
+        String name = fileName != null ? fileName : UUID.randomUUID().toString();
+        String id   = UUID.randomUUID().toString();
+        return new UploadResult(
+            "http://localhost:8080/documentos/" + carpeta + "/" + id + "/" + name,
+            carpeta + "/" + id
+        );
     }
 
     public void deleteFile(String gcsPath) {

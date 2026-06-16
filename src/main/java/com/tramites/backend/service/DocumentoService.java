@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,7 +19,7 @@ public class DocumentoService {
     private final DocumentoRepository documentoRepository;
 
     public Documento subirDocumento(MultipartFile file, String subidoPor,
-                                    String politicaId, String tramiteId, String actividadId) throws IOException {
+                                    String politicaId, String tramiteId, String actividadId) {
         String carpeta = resolverCarpeta(politicaId, tramiteId, actividadId);
         GCSService.UploadResult result = gcsService.uploadFile(file, carpeta);
 

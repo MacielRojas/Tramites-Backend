@@ -27,13 +27,7 @@ public class TramiteController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             Authentication authentication) {
-        String username = authentication.getName();
-        var usuario = usuarioService.buscarPorUsername(username).orElseThrow();
-        boolean isAdmin = usuario.getRoles().contains("ROLE_ADMIN");
-
-        List<Tramite> tramites = isAdmin
-                ? tramiteService.listarTodos()
-                : tramiteService.listarPorAsignado(usuario.getId());
+        List<Tramite> tramites = tramiteService.listarTodos();
 
         return ResponseEntity.ok(Map.of(
                 "content", tramites,
@@ -136,6 +130,14 @@ public class TramiteController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PatchMapping("/{id}/datos")
+    public ResponseEntity<?> actualizarDatos(@PathVariable String id,
+                                              @RequestBody Map<String, Object> datos) {
+        return tramiteService.actualizarDatos(id, datos)
+                .map(t -> (ResponseEntity<?>) ResponseEntity.ok(t))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
