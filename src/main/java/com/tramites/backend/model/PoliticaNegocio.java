@@ -38,6 +38,7 @@ public class PoliticaNegocio {
 
     private String linkCompartido;
     private String modoCompartido;
+    private String formularioPlantillaId;
 
     @Data
     @NoArgsConstructor

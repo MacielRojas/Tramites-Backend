@@ -40,6 +40,9 @@ public class Actividad {
     private String completadoPorId;
     private String completadoPorNombre;
 
+    private String formularioPlantillaId;
+    private String respuestaFormularioId;
+
     private LocalDateTime fechaInicio;
 
     private LocalDateTime fechaFin;

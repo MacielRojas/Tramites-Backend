@@ -71,6 +71,7 @@ public class TramiteService {
                         .departamentoId(paso.getDepartamentoId())
                         .nombreDepartamento(paso.getNombreDepartamento())
                         .formularioDefinicion(paso.getFormulario())
+                        .formularioPlantillaId(politica.getFormularioPlantillaId())
                         .comentarios(new ArrayList<>())
                         .build();
 
