@@ -13,7 +13,7 @@ public class Documento {
     private String nombre;
     private String tipo;
     private String url;
-    private String gcsPath;
+    private String s3Key;
     private String subidoPor;
     private String politicaId;
     private String actividadId;

@@ -15,19 +15,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DocumentoService {
 
-    private final GCSService gcsService;
+    private final S3Service s3Service;
     private final DocumentoRepository documentoRepository;
 
     public Documento subirDocumento(MultipartFile file, String subidoPor,
                                     String politicaId, String tramiteId, String actividadId) {
         String carpeta = resolverCarpeta(politicaId, tramiteId, actividadId);
-        GCSService.UploadResult result = gcsService.uploadFile(file, carpeta);
+        S3Service.UploadResult result = s3Service.uploadFile(file, carpeta);
 
         Documento doc = new Documento();
         doc.setNombre(file.getOriginalFilename());
         doc.setTipo(file.getContentType());
         doc.setUrl(result.url());
-        doc.setGcsPath(result.gcsPath());
+        doc.setS3Key(result.s3Key());
         doc.setSubidoPor(subidoPor);
         doc.setPoliticaId(politicaId);
         doc.setTramiteId(tramiteId);
@@ -57,7 +57,7 @@ public class DocumentoService {
     public void eliminar(String id) {
         Documento doc = documentoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Documento no encontrado: " + id));
-        gcsService.deleteFile(doc.getGcsPath());
+        s3Service.deleteFile(doc.getS3Key());
         documentoRepository.deleteById(id);
     }
 
