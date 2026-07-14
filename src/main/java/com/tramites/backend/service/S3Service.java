@@ -91,6 +91,49 @@ public class S3Service {
         );
     }
 
+    public byte[] downloadFile(String s3Key) {
+        if (s3Client == null) {
+            log.warn("S3 no disponible para descarga: {}", s3Key);
+            return new byte[0];
+        }
+        try {
+            software.amazon.awssdk.services.s3.model.GetObjectRequest getObjectRequest = 
+                    software.amazon.awssdk.services.s3.model.GetObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(s3Key)
+                            .build();
+            return s3Client.getObjectAsBytes(getObjectRequest).asByteArray();
+        } catch (Exception e) {
+            log.warn("Error descargando archivo de S3: {}", e.getMessage());
+            return new byte[0];
+        }
+    }
+
+    public UploadResult uploadBytes(byte[] content, String contentType, String filename, String carpeta) {
+        if (s3Client != null) {
+            try {
+                String original = filename != null ? filename : "documento.docx";
+                String ext = original.contains(".") ? original.substring(original.lastIndexOf('.')) : "";
+                String s3Key = carpeta + "/" + UUID.randomUUID() + ext;
+
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(s3Key)
+                        .contentType(contentType)
+                        .build();
+
+                s3Client.putObject(putObjectRequest, RequestBody.fromBytes(content));
+
+                String url = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, s3Key);
+                log.info("Archivo de bytes subido a S3: {}", url);
+                return new UploadResult(url, s3Key);
+            } catch (Exception e) {
+                log.warn("Error subiendo bytes a S3: {}", e.getMessage());
+            }
+        }
+        return localFallback(carpeta, filename);
+    }
+
     public void deleteFile(String s3Key) {
         if (s3Client == null) {
             log.warn("S3 no disponible, no se puede eliminar: {}", s3Key);

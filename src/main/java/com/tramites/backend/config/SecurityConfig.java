@@ -68,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/usuarios/me", "/api/usuarios/me/password").authenticated()
                         .requestMatchers("/api/documentos/**").authenticated()
+                        .requestMatchers("/api/document-editor/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
